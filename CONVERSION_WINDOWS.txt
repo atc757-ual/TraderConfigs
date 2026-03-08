@@ -1,0 +1,98 @@
+CONVERSION A WINDOWS - INSTRUCCIONES
+====================================
+
+Este proyecto ha sido convertido de Mac a Windows. Se han realizado los siguientes cambios:
+
+1. CAMBIOS REALIZADOS:
+   - Convertidos saltos de línea de LF (Mac) a CRLF (Windows)
+   - Eliminada carpeta __MACOSX innecesaria
+   - Creados archivos de compilación para Windows (compilar.bat, Makefile.win)
+   - Todos los archivos son compatibles con compiladores C++ estándar en Windows
+
+2. REQUISITOS PREVIOS:
+
+   Opción A: Usar MinGW (Recomendado - Libre)
+   ============================================
+   Descarga: https://www.mingw-w64.org/
+   Instalación:
+   - Descarga e instala MinGW con soporte para C++
+   - Durante la instalación, selecciona "gcc", "g++", "make"
+   - Añade la carpeta bin de MinGW al PATH de Windows
+   
+   Opción B: Usar Visual Studio Community (Gratuito)
+   ==================================================
+   Descarga: https://visualstudio.microsoft.com/es/downloads/
+   Instala con "Desktop development with C++"
+
+   Opción C: Usar WSL (Windows Subsystem for Linux)
+   ================================================
+   - Abre PowerShell como administrador
+   - Ejecuta: wsl --install
+   - Una vez instalado: sudo apt install build-essential
+
+3. COMPILACION:
+
+   Metodo 1: Usar el script batch (Más fácil)
+   ===========================================
+   - Doble-click en compilar.bat
+   - O en terminal: compilar.bat
+   
+   Metodo 2: Usar make con MinGW
+   =============================
+   - Abre terminal en la carpeta traderconfigs.src
+   - Ejecuta: mingw32-make -f Makefile.win
+   
+   Metodo 3: Compilar manualmente
+   ===============================
+   cd traderconfigs.src\codigo
+   g++ -Wall -std=c++11 -O2 component.cpp error.cpp operations.cpp TraderConfigs.cpp -o ..\TraderConfigs.exe
+
+4. USO DEL PROGRAMA:
+
+   Ejecutable generado: TraderConfigs.exe
+   
+   Uso:
+   ----
+   TraderConfigs.exe <archivo_componentes.txt> <archivo_arquitectura.txt>
+   
+   Ejemplo:
+   --------
+   TraderConfigs.exe ejemplos/cb.txt ejemplos/arquitectura.txt
+   
+   Los archivos generados serán:
+   - single_configurations.out
+   - long_configurations.out
+
+5. ARCHIVOS IMPORTANTES:
+
+   - codigo/TraderConfigs.cpp    Archivo principal del programa
+   - codigo/component.h/cpp      Clases para componentes
+   - codigo/error.h/cpp          Manejo de errores
+   - codigo/operations.h/cpp     Operaciones
+   - ejemplos/                   Archivos de ejemplo para prueba
+
+6. NOTAS:
+
+   - El código es compatible con C++11 estándar
+   - No requiere ninguna librería externa especial
+   - Funciona en Windows 7/10/11 x86 y x64
+   - Si hay problemas de compilación, verifica que g++ esté en el PATH
+
+7. RESOLUCION DE PROBLEMAS:
+
+   Error: "g++ no encontrado"
+   -> Instala MinGW: https://www.mingw-w64.org/
+   
+   Error: "No such file or directory"
+   -> Asegúrate de ejecutar desde la carpeta correcta
+   -> Usa rutas con barras invertidas: \
+   
+   Advertencias de compilación
+   -> Son normales en este proyecto C antiguo
+   -> No afectan la funcionalidad del programa
+
+====================================
+Proyecto convertido el: 5 de Marzo de 2026
+Original: macOS / Linux
+Convertido a: Windows 7/10/11
+====================================

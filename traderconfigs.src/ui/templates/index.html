@@ -1,0 +1,1425 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TraderConfigs UI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+</head>
+<body>
+  <main class="container">
+    <section id="screenStart" class="screen screen-active card center-screen">
+      <svg width="200" height="140" viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg" style="margin-bottom: 20px;">
+        <!-- Componente principal -->
+        <rect x="50" y="40" width="100" height="60" rx="8" fill="#0891b2" stroke="#0369a1" stroke-width="2"/>
+        <text x="100" y="75" text-anchor="middle" fill="white" font-size="14" font-weight="bold">Componente</text>
+        
+        <!-- Puertos de entrada (izquierda) -->
+        <circle cx="40" cy="55" r="6" fill="#67e8f9" stroke="#0891b2" stroke-width="2"/>
+        <line x1="10" y1="55" x2="34" y2="55" stroke="#64748b" stroke-width="2" stroke-dasharray="3,3"/>
+        <text x="8" y="52" text-anchor="end" fill="#475569" font-size="10">I1</text>
+        
+        <circle cx="40" cy="75" r="6" fill="#67e8f9" stroke="#0891b2" stroke-width="2"/>
+        <line x1="10" y1="75" x2="34" y2="75" stroke="#64748b" stroke-width="2" stroke-dasharray="3,3"/>
+        <text x="8" y="72" text-anchor="end" fill="#475569" font-size="10">I2</text>
+        
+        <circle cx="40" cy="95" r="6" fill="#67e8f9" stroke="#0891b2" stroke-width="2"/>
+        <line x1="10" y1="95" x2="34" y2="95" stroke="#64748b" stroke-width="2" stroke-dasharray="3,3"/>
+        <text x="8" y="92" text-anchor="end" fill="#475569" font-size="10">I3</text>
+        
+        <!-- Puertos de salida (derecha) -->
+        <circle cx="160" cy="60" r="6" fill="#86efac" stroke="#16a34a" stroke-width="2"/>
+        <line x1="166" y1="60" x2="190" y2="60" stroke="#64748b" stroke-width="2" stroke-dasharray="3,3"/>
+        <text x="192" y="63" text-anchor="start" fill="#475569" font-size="10">O1</text>
+        
+        <circle cx="160" cy="80" r="6" fill="#86efac" stroke="#16a34a" stroke-width="2"/>
+        <line x1="166" y1="80" x2="190" y2="80" stroke="#64748b" stroke-width="2" stroke-dasharray="3,3"/>
+        <text x="192" y="83" text-anchor="start" fill="#475569" font-size="10">O2</text>
+        
+        <!-- Etiquetas -->
+        <text x="100" y="20" text-anchor="middle" fill="#475569" font-size="11" font-style="italic">Servicios Requeridos (I:)</text>
+        <text x="100" y="130" text-anchor="middle" fill="#475569" font-size="11" font-style="italic">Servicios Ofrecidos (O:)</text>
+      </svg>
+      <h1>TraderConfigs - Visualizador</h1>
+      <p>Analiza configuraciones de componentes en una interfaz visual.</p>
+      <button id="startButton">Iniciar</button>
+    </section>
+
+    <section id="screenInput" class="screen">
+      <button id="backToStartButton" class="floating-back-btn" title="Volver al inicio">Volver a Inicio</button>
+      <div class="container">
+        <header class="header">
+          <h1>Entradas</h1>
+          <p>Edita Componentes Candidatos y Arquitectura, luego ejecuta el análisis.</p>
+        </header>
+
+        <section class="cards">
+          <article class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <h2 style="margin: 0;">Arquitectura</h2>
+              <div style="display: flex; gap: 8px;">
+                <button id="importArchBtn" class="secondary" style="font-size: 0.9rem; padding: 6px 12px;">📁 Importar</button>
+                <button id="loadExampleArchBtn" class="secondary" style="font-size: 0.9rem; padding: 6px 12px;">📋 Traer ejemplo</button>
+                <button id="openComponentBuilderBtn" class="secondary" style="font-size: 0.9rem; padding: 6px 12px; display: none;">+ Añadir componente</button>
+                <button id="toggleViewBtn" class="secondary" style="font-size: 0.9rem; padding: 6px 12px;">Vista tabla</button>
+              </div>
+            </div>
+            <input type="file" id="importArchFile" accept=".txt" style="display: none;" />
+            <textarea id="architecture" style="display: block;">{{ architecture_content }}</textarea>
+            <div id="architectureTableView" style="display: none; overflow-x: auto;">
+              <table class="architecture-table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Servicios ofrecidos ☐</th>
+                    <th>Servicios requeridos ■</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="architectureTableBody"></tbody>
+              </table>
+            </div>
+            <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #e2e8f0; text-align: center;">
+              <button id="clearArchBtn" class="secondary" style="display: none; font-size: 0.9rem; padding: 8px 20px; background: #fee2e2; color: #991b1b; font-weight: 500;">🗑 Limpiar todo</button>
+            </div>
+          </article>
+          <article class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <h2 style="margin: 0;">Componentes Candidatos</h2>
+              <div style="display: flex; gap: 8px;">
+                <button id="importCandidatesBtn" class="secondary" style="font-size: 0.9rem; padding: 6px 12px;">📁 Importar</button>
+                <button id="loadExampleCandidatesBtn" class="secondary" style="font-size: 0.9rem; padding: 6px 12px;">📋 Traer ejemplo</button>
+                <button id="openCandidateBuilderBtn" class="secondary" style="font-size: 0.9rem; padding: 6px 12px; display: none;">+ Añadir componente</button>
+                <button id="toggleCandidatesViewBtn" class="secondary" style="font-size: 0.9rem; padding: 6px 12px;">Vista tabla</button>
+              </div>
+            </div>
+            <input type="file" id="importCandidatesFile" accept=".txt" style="display: none;" />
+            <textarea id="candidates">{{ candidates_content }}</textarea>
+            <div id="candidatesTableView" style="display: none; overflow-x: auto;">
+              <table class="architecture-table">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Servicios ofrecidos ☐</th>
+                    <th>Servicios requeridos ■</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="candidatesTableBody"></tbody>
+              </table>
+            </div>
+            <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #e2e8f0; text-align: center;">
+              <button id="clearCandidatesBtn" class="secondary" style="display: none; font-size: 0.9rem; padding: 8px 20px; background: #fee2e2; color: #991b1b; font-weight: 500;">🗑 Limpiar todo</button>
+            </div>
+          </article>
+        </section>
+
+        <section class="actions">
+          <button id="runButton">Ejecutar análisis</button>
+          <span id="status" class="status">Listo para ejecutar</span>
+        </section>
+      </div>
+    </section>
+
+    <section id="screenResults" class="screen">
+      <section class="output card">
+        <div class="results-topbar">
+          <h2>Resultados</h2>
+          <div class="results-actions">
+            <button id="toggleRCButton" class="secondary">Mostrar R/C</button>
+            <button id="copyButton" class="secondary" style="display: none;">Copiar tabla</button>
+            <button id="downloadSingleBtn" class="secondary">Descargar single_configurations.json</button>
+            <button id="downloadLongBtn" class="secondary">Descargar long_configurations.json</button>
+            <button id="backButton" class="secondary">Volver</button>
+          </div>
+        </div>
+        <div class="summary" id="summary">Sin resultados todavía.</div>
+        <div class="table-wrap">
+          <table id="resultTable">
+            <thead>
+              <tr id="tableHeader"></tr>
+            </thead>
+            <tbody id="resultBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+    <!-- Component Builder Modal -->
+    <div id="componentBuilderModal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Nuevo componente</h2>
+          <button id="closeModalBtn" class="modal-close">x</button>
+        </div>
+        <p class="modal-description">Añade servicios creados previamente al componente que vas a crear.</p>
+        
+        <div id="availableServicesSection" style="margin-bottom: 20px; padding: 12px; background: #f0f9ff; border-radius: 6px; display: none;">
+          <h3 style="font-size: 0.9rem; margin: 0 0 8px 0; color: #0369a1;">Servicios existentes en arquitectura</h3>
+          <select id="availableServicesSelect" style="width: 100%; padding: 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-size: 0.95rem;">
+            <option value="">-- Selecciona un servicio existente --</option>
+          </select>
+          <button id="addExistingServiceBtn" style="margin-top: 8px; width: 100%; font-size: 0.9rem; background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(8, 145, 178, 0.2);">Añadir como servicio requerido</button>
+        </div>
+        
+        <div id="servicesList" class="services-list"></div>
+        
+        <button id="addServiceBtn" class="btn-add-service">+ Añadir servicio manualmente</button>
+        
+        <button id="saveComponentBtn" class="modal-button-primary" disabled style="opacity: 0.5; cursor: not-allowed;">Añadir componente</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const startButton = document.getElementById('startButton');
+    const runButton = document.getElementById('runButton');
+    const loadExampleArchBtn = document.getElementById('loadExampleArchBtn');
+    const loadExampleCandidatesBtn = document.getElementById('loadExampleCandidatesBtn');
+    const copyButton = document.getElementById('copyButton');
+    const downloadSingleBtn = document.getElementById('downloadSingleBtn');
+    const downloadLongBtn = document.getElementById('downloadLongBtn');
+    const toggleRCButton = document.getElementById('toggleRCButton');
+    const backButton = document.getElementById('backButton');
+    const statusEl = document.getElementById('status');
+    const summaryEl = document.getElementById('summary');
+    const resultBody = document.getElementById('resultBody');
+    const tableHeader = document.getElementById('tableHeader');
+
+    const screenStart = document.getElementById('screenStart');
+    const screenInput = document.getElementById('screenInput');
+    const screenResults = document.getElementById('screenResults');
+    const backToStartButton = document.getElementById('backToStartButton');
+
+    const componentBuilderModal = document.getElementById('componentBuilderModal');
+    const openComponentBuilderBtn = document.getElementById('openComponentBuilderBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const addServiceBtn = document.getElementById('addServiceBtn');
+    const saveComponentBtn = document.getElementById('saveComponentBtn');
+    const servicesList = document.getElementById('servicesList');
+    const availableServicesSection = document.getElementById('availableServicesSection');
+    const availableServicesSelect = document.getElementById('availableServicesSelect');
+    const addExistingServiceBtn = document.getElementById('addExistingServiceBtn');
+    
+    const toggleViewBtn = document.getElementById('toggleViewBtn');
+    const architectureTextarea = document.getElementById('architecture');
+    const architectureTableView = document.getElementById('architectureTableView');
+    const architectureTableBody = document.getElementById('architectureTableBody');
+    const importArchBtn = document.getElementById('importArchBtn');
+    const importArchFile = document.getElementById('importArchFile');
+    const toggleCandidatesViewBtn = document.getElementById('toggleCandidatesViewBtn');
+    const candidatesTableView = document.getElementById('candidatesTableView');
+    const candidatesTableBody = document.getElementById('candidatesTableBody');
+    const importCandidatesBtn = document.getElementById('importCandidatesBtn');
+    const importCandidatesFile = document.getElementById('importCandidatesFile');
+    const openCandidateBuilderBtn = document.getElementById('openCandidateBuilderBtn');
+    const candidatesTextarea = document.getElementById('candidates');
+    const clearArchBtn = document.getElementById('clearArchBtn');
+    const clearCandidatesBtn = document.getElementById('clearCandidatesBtn');
+
+    let currentRows = [];
+    let currentComponentCount = 0;
+    let showRCColumns = false;
+    let services = [];
+    let builderTarget = 'architecture';
+    let architectureComponents = [];
+    let candidatesComponents = [];
+    let tableViewActive = true;  // Table view is default
+    let candidatesTableViewActive = true;
+    const defaultArchitecture = architectureTextarea.value;
+    const defaultCandidates = candidatesTextarea.value;
+
+    // localStorage functions
+    function saveToLocalStorage(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (e) {
+        console.error('Error saving to localStorage:', e);
+      }
+    }
+
+    function loadFromLocalStorage(key, defaultValue = null) {
+      try {
+        const data = localStorage.getItem(key);
+        return data ? JSON.parse(data) : defaultValue;
+      } catch (e) {
+        console.error('Error loading from localStorage:', e);
+        return defaultValue;
+      }
+    }
+
+    function parseArchitectureText(text) {
+      const lines = text.trim().split('\n');
+      const arquitectura = [];
+
+      const normalizeServices = (raw) => {
+        return raw
+          .split(/[\s,]+/)
+          .map(service => service.trim())
+          .filter(service => service && service !== '-')
+          .join(', ');
+      };
+      
+      lines.forEach((line, index) => {
+        line = line.trim();
+        if (!line) return;
+        
+        const component = {};
+        const compId = `C${index + 1}`;
+        
+        let ofrecidos = '';
+        let requeridos = '';
+        
+        if (line.includes('O:')) {
+          const oPart = line.split('I:')[0];
+          const oIndex = oPart.indexOf('O:');
+          if (oIndex !== -1) {
+            ofrecidos = normalizeServices(oPart.substring(oIndex + 2).trim());
+          }
+        }
+        
+        if (line.includes('I:')) {
+          const iIndex = line.indexOf('I:');
+          requeridos = normalizeServices(line.substring(iIndex + 2).trim());
+        }
+        
+        component[compId] = {
+          "Ofrecidos": ofrecidos,
+          "Requeridos": requeridos
+        };
+        
+        arquitectura.push(component);
+      });
+      
+      return { arquitectura };
+    }
+
+    function parseCandidatesText(text) {
+      return parseArchitectureText(text);
+    }
+
+    function parseResultsData(data) {
+      const configuraciones = [];
+      
+      data.rows.forEach(row => {
+        const config = {};
+        const componentes = [];
+        
+        for (const [compId, services] of Object.entries(row.components)) {
+          const comp = {};
+          comp[compId] = services.join(', ');
+          componentes.push(comp);
+        }
+        
+        config[`${row.id}`] = componentes;
+        configuraciones.push(config);
+      });
+      
+      return {
+        timestamp: new Date().toISOString(),
+        totalConfiguraciones: data.totalRows,
+        configuraciones
+      };
+    }
+
+    function saveInputs() {
+      const candidates = document.getElementById('candidates').value;
+      const architecture = document.getElementById('architecture').value;
+
+      saveToLocalStorage('traderconfigs_candidates_text', candidates);
+      saveToLocalStorage('traderconfigs_architecture_text', architecture);
+    }
+
+    function loadInputs() {
+      const candidatesEl = document.getElementById('candidates');
+      const architectureEl = document.getElementById('architecture');
+
+      const savedCandidatesText = loadFromLocalStorage('traderconfigs_candidates_text');
+      const savedArchitectureText = loadFromLocalStorage('traderconfigs_architecture_text');
+
+      if (typeof savedCandidatesText === 'string') {
+        candidatesEl.value = savedCandidatesText;
+      }
+
+      if (typeof savedArchitectureText === 'string') {
+        architectureEl.value = savedArchitectureText;
+      }
+
+      const legacyCandidates = loadFromLocalStorage('traderconfigs_candidates');
+      const legacyArchitecture = loadFromLocalStorage('traderconfigs_architecture');
+
+      const normalizeLegacyServices = (value) => String(value || '').replace(/,\s*/g, ' ').trim();
+
+      if (!savedCandidatesText && legacyCandidates && legacyCandidates.arquitectura) {
+        candidatesEl.value = legacyCandidates.arquitectura.map(comp => {
+          const compId = Object.keys(comp)[0];
+          const data = comp[compId];
+          const offered = normalizeLegacyServices(data.Ofrecidos);
+          const required = normalizeLegacyServices(data.Requeridos);
+          let line = `O: ${offered.padEnd(45)}`;
+          if (required && required.trim()) {
+            line += ` I: ${required}`;
+          }
+          return line;
+        }).join('\n');
+      }
+
+      if (!savedArchitectureText && legacyArchitecture && legacyArchitecture.arquitectura) {
+        architectureEl.value = legacyArchitecture.arquitectura.map(comp => {
+          const compId = Object.keys(comp)[0];
+          const data = comp[compId];
+          const offered = normalizeLegacyServices(data.Ofrecidos);
+          const required = normalizeLegacyServices(data.Requeridos);
+          let line = `O: ${offered.padEnd(30)}`;
+          if (required && required.trim()) {
+            line += ` I: ${required}`;
+          }
+          return line;
+        }).join('\n');
+      }
+    }
+
+    function saveResults(data) {
+      const resultsData = parseResultsData(data);
+      saveToLocalStorage('traderconfigs_single_configurations', resultsData);
+      
+      // Save long configurations if they exist
+      if (data.longOutExists && data.longRows && data.longRows.length > 0) {
+        const longData = {
+          ...data,
+          rows: data.longRows,
+          totalRows: data.totalLongRows
+        };
+        const longResultsData = parseResultsData(longData);
+        saveToLocalStorage('traderconfigs_long_configurations', longResultsData);
+      }
+    }
+
+    function parseArchitectureToComponents() {
+      const text = architectureTextarea.value.trim();
+      if (!text) return [];
+      
+      const lines = text.split('\n');
+      const components = [];
+      let idx = 1;
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        
+        // Check if line has O:
+        if (line.includes('O:')) {
+          const oIndex = line.indexOf('O:');
+          let offered = '';
+          let required = '';
+          
+          // Check if line also has I:
+          if (line.includes('I:')) {
+            const iIndex = line.indexOf('I:');
+            offered = line.substring(oIndex + 2, iIndex).trim();
+            required = line.substring(iIndex + 2).trim();
+          } else {
+            // Only O: on this line
+            offered = line.substring(oIndex + 2).trim();
+          }
+          
+          // Only add component if offered has content (and is not "-")
+          if (offered && offered !== '-') {
+            components.push({
+              name: `C${idx}`,
+              offered: offered,
+              required: (required && required !== '-') ? required : ''
+            });
+            idx++;
+          }
+        }
+      }
+      
+      return components;
+    }
+
+    function renderArchitectureTable() {
+      architectureTableBody.innerHTML = '';
+      
+      architectureComponents.forEach((comp, idx) => {
+        const row = document.createElement('tr');
+        const offeredVal = comp.offered || '';
+        const requiredVal = comp.required || '';
+        row.innerHTML = `
+          <td><strong>${comp.name}</strong></td>
+          <td><input type="text" class="comp-input offered-input" value="${escapeHtml(offeredVal)}" data-idx="${idx}" /></td>
+          <td><input type="text" class="comp-input required-input" value="${escapeHtml(requiredVal)}" data-idx="${idx}" /></td>
+          <td><button class="comp-delete-btn" data-idx="${idx}">🗑</button></td>
+        `;
+        
+        // Event listener for offered input - real-time update
+        row.querySelector('.offered-input').addEventListener('input', (e) => {
+          const idx = parseInt(e.target.dataset.idx);
+          architectureComponents[idx].offered = e.target.value;
+          syncTextareaFromTable();
+          saveArchitectureTable();
+        });
+        
+        // Event listener for required input - real-time update
+        row.querySelector('.required-input').addEventListener('input', (e) => {
+          const idx = parseInt(e.target.dataset.idx);
+          architectureComponents[idx].required = e.target.value;
+          syncTextareaFromTable();
+          saveArchitectureTable();
+        });
+        
+        // Event listener for delete button
+        row.querySelector('.comp-delete-btn').addEventListener('click', () => {
+          architectureComponents.splice(idx, 1);
+          renderArchitectureTable();
+          syncTextareaFromTable();
+          saveArchitectureTable();
+        });
+        
+        architectureTableBody.appendChild(row);
+      });
+      
+      updateClearButtonsVisibility();
+    }
+
+    function syncTextareaFromTable() {
+      const lines = architectureComponents.map(comp => {
+        const offered = (comp.offered || '').trim();
+        const required = (comp.required || '').trim();
+
+        if (!offered || offered === '-') return null;
+
+        let line = `O: ${offered.padEnd(30)}`;
+        // Only add I: if there's actual content (not empty or "-")
+        if (required && required !== '-') {
+          line += ` I: ${required}`;
+        }
+        return line;
+      }).filter(line => line !== null);  // Remove null entries
+      
+      architectureTextarea.value = lines.join('\n');
+      architectureTextarea.dispatchEvent(new Event('input'));
+    }
+
+    function saveArchitectureTable() {
+      saveToLocalStorage('traderconfigs_architecture_table', architectureComponents);
+    }
+
+    function loadArchitectureTable() {
+      const saved = loadFromLocalStorage('traderconfigs_architecture_table');
+      if (saved && Array.isArray(saved)) {
+        architectureComponents = saved;
+      } else {
+        // First load: parse from textarea
+        architectureComponents = parseArchitectureToComponents();
+      }
+      renderArchitectureTable();
+    }
+
+    function parseCandidatesToComponents() {
+      const text = candidatesTextarea.value.trim();
+      if (!text) return [];
+
+      const lines = text.split('\n');
+      const components = [];
+      let idx = 1;
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line || !line.includes('O:')) continue;
+
+        const oIndex = line.indexOf('O:');
+        let offered = '';
+        let required = '';
+
+        if (line.includes('I:')) {
+          const iIndex = line.indexOf('I:');
+          offered = line.substring(oIndex + 2, iIndex).trim();
+          required = line.substring(iIndex + 2).trim();
+        } else {
+          offered = line.substring(oIndex + 2).trim();
+        }
+
+        if (offered && offered !== '-') {
+          components.push({
+            name: `C${idx}`,
+            offered,
+            required: (required && required !== '-') ? required : ''
+          });
+          idx++;
+        }
+      }
+
+      return components;
+    }
+
+    function renderCandidatesTable() {
+      candidatesTableBody.innerHTML = '';
+
+      candidatesComponents.forEach((comp, idx) => {
+        const row = document.createElement('tr');
+        const offeredVal = comp.offered || '';
+        const requiredVal = comp.required || '';
+
+        row.innerHTML = `
+          <td><strong>${comp.name}</strong></td>
+          <td><input type="text" class="comp-input cand-offered-input" value="${escapeHtml(offeredVal)}" data-idx="${idx}" /></td>
+          <td><input type="text" class="comp-input cand-required-input" value="${escapeHtml(requiredVal)}" data-idx="${idx}" /></td>
+          <td><button class="comp-delete-btn" data-idx="${idx}">🗑</button></td>
+        `;
+
+        row.querySelector('.cand-offered-input').addEventListener('input', (e) => {
+          const currentIdx = parseInt(e.target.dataset.idx);
+          candidatesComponents[currentIdx].offered = e.target.value;
+          syncCandidatesTextareaFromTable();
+          saveCandidatesTable();
+        });
+
+        row.querySelector('.cand-required-input').addEventListener('input', (e) => {
+          const currentIdx = parseInt(e.target.dataset.idx);
+          candidatesComponents[currentIdx].required = e.target.value;
+          syncCandidatesTextareaFromTable();
+          saveCandidatesTable();
+        });
+
+        row.querySelector('.comp-delete-btn').addEventListener('click', () => {
+          candidatesComponents.splice(idx, 1);
+          renderCandidatesTable();
+          syncCandidatesTextareaFromTable();
+          saveCandidatesTable();
+        });
+
+        candidatesTableBody.appendChild(row);
+      });
+      
+      updateClearButtonsVisibility();
+    }
+
+    function syncCandidatesTextareaFromTable() {
+      const lines = candidatesComponents.map(comp => {
+        const offered = (comp.offered || '').trim();
+        const required = (comp.required || '').trim();
+
+        if (!offered || offered === '-') return null;
+
+        let line = `O: ${offered.padEnd(45)}`;
+        if (required && required !== '-') {
+          line += ` I: ${required}`;
+        }
+        return line;
+      }).filter(line => line !== null);
+
+      candidatesTextarea.value = lines.join('\n');
+      candidatesTextarea.dispatchEvent(new Event('input'));
+    }
+
+    function saveCandidatesTable() {
+      saveToLocalStorage('traderconfigs_candidates_table', candidatesComponents);
+    }
+
+    function loadCandidatesTable() {
+      const saved = loadFromLocalStorage('traderconfigs_candidates_table');
+      if (saved && Array.isArray(saved)) {
+        candidatesComponents = saved;
+      } else {
+        candidatesComponents = parseCandidatesToComponents();
+      }
+      renderCandidatesTable();
+    }
+
+    function resetArchitectureToDefaults() {
+      architectureTextarea.value = defaultArchitecture;
+      architectureTextarea.dispatchEvent(new Event('input'));
+      loadArchitectureTable();
+    }
+
+    function resetCandidatesToDefaults() {
+      candidatesTextarea.value = defaultCandidates;
+      candidatesTextarea.dispatchEvent(new Event('input'));
+      loadCandidatesTable();
+    }
+
+    function setBothSectionsTableMode() {
+      // Re-parse and render both tables
+      architectureComponents = parseArchitectureToComponents();
+      candidatesComponents = parseCandidatesToComponents();
+      
+      tableViewActive = true;
+      architectureTextarea.style.display = 'none';
+      architectureTableView.style.display = 'block';
+      toggleViewBtn.textContent = 'Vista texto';
+      openComponentBuilderBtn.style.display = 'inline-block';
+      renderArchitectureTable();
+
+      candidatesTableViewActive = true;
+      candidatesTextarea.style.display = 'none';
+      candidatesTableView.style.display = 'block';
+      toggleCandidatesViewBtn.textContent = 'Vista texto';
+      openCandidateBuilderBtn.style.display = 'inline-block';
+      renderCandidatesTable();
+    }
+
+    function clearInputSections() {
+      architectureTextarea.value = '';
+      candidatesTextarea.value = '';
+      architectureComponents = [];
+      candidatesComponents = [];
+      renderArchitectureTable();
+      renderCandidatesTable();
+      saveArchitectureTable();
+      saveCandidatesTable();
+      saveInputs();
+      updateClearButtonsVisibility();
+      setBothSectionsTableMode();
+    }
+
+    function loadExampleArchitecture() {
+      // Set default content
+      architectureTextarea.value = defaultArchitecture;
+      architectureTextarea.dispatchEvent(new Event('input'));
+      
+      // Parse fresh from textarea, ignoring localStorage
+      architectureComponents = parseArchitectureToComponents();
+      
+      // Ensure table view is active for architecture
+      tableViewActive = true;
+      architectureTextarea.style.display = 'none';
+      architectureTableView.style.display = 'block';
+      toggleViewBtn.textContent = 'Vista texto';
+      openComponentBuilderBtn.style.display = 'inline-block';
+      
+      // Render and save
+      renderArchitectureTable();
+      saveArchitectureTable();
+      updateClearButtonsVisibility();
+      showToast('Arquitectura ejemplo cargada', true);
+    }
+
+    function loadExampleCandidates() {
+      // Set default content
+      candidatesTextarea.value = defaultCandidates;
+      candidatesTextarea.dispatchEvent(new Event('input'));
+      
+      // Parse fresh from textarea, ignoring localStorage
+      candidatesComponents = parseCandidatesToComponents();
+      
+      // Ensure table view is active for candidates
+      candidatesTableViewActive = true;
+      candidatesTextarea.style.display = 'none';
+      candidatesTableView.style.display = 'block';
+      toggleCandidatesViewBtn.textContent = 'Vista texto';
+      openCandidateBuilderBtn.style.display = 'inline-block';
+      
+      // Render and save
+      renderCandidatesTable();
+      saveCandidatesTable();
+      updateClearButtonsVisibility();
+      showToast('Candidatos ejemplo cargados', true);
+    }
+
+    function downloadJsonFromStorage(storageKey, fileName, emptyMessage) {
+      const data = loadFromLocalStorage(storageKey);
+      if (!data) {
+        showToast(emptyMessage, false);
+        return;
+      }
+
+      const json = JSON.stringify(data, null, 2);
+      const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    function showScreen(screen) {
+      screenStart.classList.remove('screen-active');
+      screenInput.classList.remove('screen-active');
+      screenResults.classList.remove('screen-active');
+      screen.classList.add('screen-active');
+      
+      // Save current screen to localStorage (except start screen)
+      if (screen !== screenStart) {
+        saveToLocalStorage('traderconfigs_current_screen', screen.id);
+      } else {
+        localStorage.removeItem('traderconfigs_current_screen');
+      }
+    }
+
+    function setStatus(text, isError = false) {
+      statusEl.textContent = text;
+      statusEl.className = isError ? 'status error' : 'status';
+    }
+
+    function resolveComponentCount(rows, declaredCount = 0) {
+      const parsedDeclared = Number(declaredCount);
+      if (!Number.isNaN(parsedDeclared) && parsedDeclared > 0) {
+        return parsedDeclared;
+      }
+
+      let maxComp = 0;
+      for (const row of rows) {
+        for (const key of Object.keys(row.components || {})) {
+          if (key.startsWith('C')) {
+            const n = Number(key.slice(1));
+            if (!Number.isNaN(n) && n > maxComp) maxComp = n;
+          }
+        }
+      }
+      return maxComp;
+    }
+
+    function renderHeader(componentCount, showRC = false) {
+      let html = '<th>ID</th>';
+      for (let i = 1; i <= componentCount; i++) {
+        html += `<th>C${i}</th>`;
+      }
+
+      if (showRC) {
+        html += '<th>R</th><th>C</th>';
+      }
+
+      tableHeader.innerHTML = html;
+    }
+
+    function rcValue(value) {
+      return value ? 'SI' : 'NO';
+    }
+
+    function rcClass(value) {
+      return value ? 'status-ok' : 'status-fail';
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function updateClearButtonsVisibility() {
+      // Mostrar botón solo si hay al menos 1 registro
+      if (clearArchBtn) {
+        clearArchBtn.style.display = architectureComponents.length > 0 ? 'inline-block' : 'none';
+      }
+      if (clearCandidatesBtn) {
+        clearCandidatesBtn.style.display = candidatesComponents.length > 0 ? 'inline-block' : 'none';
+      }
+    }
+
+    function truncateText(text, maxLen = 38) {
+      const value = String(text || '');
+      if (value.length <= maxLen) return value;
+      return value.slice(0, maxLen - 1) + '…';
+    }
+
+    function renderTooltipText(text, maxLen = 38) {
+      const full = String(text || '-');
+      const short = truncateText(full, maxLen);
+      return `<span class="truncate-with-tooltip" title="${escapeHtml(full)}">${escapeHtml(short)}</span>`;
+    }
+
+    function renderRCValue(value, reason) {
+      const display = value ? 'SI' : 'NO';
+      const reasonText = String(reason || '');
+      return `<span class="rc-value-with-tooltip" title="${escapeHtml(reasonText)}">${display}</span>`;
+    }
+
+    function createConfetti() {
+      const container = document.createElement('div');
+      container.className = 'confetti-container';
+      document.body.appendChild(container);
+
+      const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#6c5ce7', '#a29bfe', '#fd79a8', '#fdcb6e'];
+      const confettiCount = 80;
+
+      for (let i = 0; i < confettiCount; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.animationDelay = Math.random() * 0.5 + 's';
+        confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        container.appendChild(confetti);
+      }
+
+      setTimeout(() => {
+        container.remove();
+      }, 4000);
+    }
+
+    function showToast(message, isSuccess = true) {
+      const toast = document.createElement('div');
+      toast.className = `toast ${isSuccess ? 'success' : ''}`;
+      toast.innerHTML = `<span class="toast-icon">${isSuccess ? '✓' : '!'}</span><span>${message}</span>`;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.add('removing');
+        setTimeout(() => {
+          toast.remove();
+        }, 400);
+      }, 3000);
+    }
+
+    function copyTableToClipboard() {
+      if (!currentRows.length || currentComponentCount <= 0) return;
+
+      let header = 'ID';
+      for (let i = 1; i <= currentComponentCount; i++) {
+        header += `\tC${i}`;
+      }
+      let text = header + '\n';
+
+      for (const row of currentRows) {
+        text += `${row.id}`;
+
+        for (let i = 1; i <= currentComponentCount; i++) {
+          const comp = 'C' + i;
+          const services = row.components[comp] || [];
+          const cellContent = services.length > 0 ? services.join(', ') : '-';
+          const safe = cellContent.includes(',') ? `"${cellContent}"` : cellContent;
+          text += `\t${safe}`;
+        }
+
+        text += '\n';
+      }
+
+      navigator.clipboard.writeText(text).then(() => {
+        const originalText = copyButton.textContent;
+        copyButton.textContent = '¡Copiado!';
+        setTimeout(() => {
+          copyButton.textContent = originalText;
+        }, 2000);
+      }).catch(err => {
+        alert('Error al copiar: ' + err);
+      });
+    }
+
+    function renderRows(rows, componentCount) {
+      currentRows = rows;
+      currentComponentCount = componentCount;
+
+      copyButton.style.display = rows.length > 0 ? 'inline-block' : 'none';
+
+      renderHeader(componentCount, showRCColumns);
+
+      resultBody.innerHTML = '';
+      for (const row of rows) {
+        const tr = document.createElement('tr');
+        let html = `<td class="id-col">${row.id}</td>`;
+
+        for (let i = 1; i <= componentCount; i++) {
+          const comp = 'C' + i;
+          const services = row.components[comp] || [];
+          const content = services.length > 0 ? services.join(', ') : '-';
+          html += `<td class="comp-col">${renderTooltipText(content, 34)}</td>`;
+        }
+
+        if (showRCColumns) {
+          html += `
+            <td class="rc-col ${rcClass(row.respeta)}">
+              ${renderRCValue(row.respeta, row.respetaReason)}
+            </td>
+          `;
+          html += `
+            <td class="rc-col ${rcClass(row.cerrada)}">
+              ${renderRCValue(row.cerrada, row.cerradaReason)}
+            </td>
+          `;
+        }
+
+        tr.innerHTML = html;
+        resultBody.appendChild(tr);
+      }
+    }
+
+    startButton.addEventListener('click', () => {
+      // Clear localStorage when starting fresh
+      localStorage.clear();
+
+      clearInputSections();
+      showScreen(screenInput);
+    });
+
+    backButton.addEventListener('click', () => {
+      showScreen(screenInput);
+    });
+
+    backToStartButton.addEventListener('click', () => {
+      // Limpiar localStorage para cargar datos frescos desde archivos
+      localStorage.clear();
+      showScreen(screenStart);
+    });
+
+    copyButton.addEventListener('click', copyTableToClipboard);
+    loadExampleArchBtn.addEventListener('click', loadExampleArchitecture);
+    loadExampleCandidatesBtn.addEventListener('click', loadExampleCandidates);
+
+    document.getElementById('clearArchBtn').addEventListener('click', () => {
+      if (confirm('¿Estás seguro de que deseas borrar todos los registros de Arquitectura?')) {
+        architectureTextarea.value = '';
+        architectureComponents = [];
+        renderArchitectureTable();
+        saveArchitectureTable();
+        updateClearButtonsVisibility();
+        showToast('Arquitectura limpiada', true);
+      }
+    });
+
+    document.getElementById('clearCandidatesBtn').addEventListener('click', () => {
+      if (confirm('¿Estás seguro de que deseas borrar todos los registros de Candidatos?')) {
+        candidatesTextarea.value = '';
+        candidatesComponents = [];
+        renderCandidatesTable();
+        saveCandidatesTable();
+        updateClearButtonsVisibility();
+        showToast('Candidatos limpiados', true);
+      }
+    });
+
+    downloadSingleBtn.addEventListener('click', () => {
+      downloadJsonFromStorage(
+        'traderconfigs_single_configurations',
+        'single_configurations.json',
+        'No hay resultados single para descargar'
+      );
+    });
+
+    downloadLongBtn.addEventListener('click', () => {
+      downloadJsonFromStorage(
+        'traderconfigs_long_configurations',
+        'long_configurations.json',
+        'No hay resultados long para descargar'
+      );
+    });
+
+    toggleRCButton.addEventListener('click', () => {
+      showRCColumns = !showRCColumns;
+      toggleRCButton.textContent = showRCColumns ? 'Ocultar R/C' : 'Mostrar R/C';
+      renderRows(currentRows, currentComponentCount);
+    });
+
+    // Auto-save inputs when changed
+    document.getElementById('architecture').addEventListener('input', () => {
+      saveInputs();
+      if (tableViewActive) {
+        renderArchitectureTable();
+      }
+    });
+
+    document.getElementById('candidates').addEventListener('input', () => {
+      saveInputs();
+      if (candidatesTableViewActive) {
+        renderCandidatesTable();
+      }
+    });
+
+    // Toggle between textarea and table view
+    toggleViewBtn.addEventListener('click', () => {
+      tableViewActive = !tableViewActive;
+      if (tableViewActive) {
+        // Switching to table view: parse textarea and update architectureComponents
+        architectureComponents = parseArchitectureToComponents();
+        architectureTextarea.style.display = 'none';
+        architectureTableView.style.display = 'block';
+        toggleViewBtn.textContent = 'Vista texto';
+        openComponentBuilderBtn.style.display = 'inline-block';
+        renderArchitectureTable();
+      } else {
+        // Switching to text view: textarea already synced
+        architectureTextarea.style.display = 'block';
+        architectureTableView.style.display = 'none';
+        toggleViewBtn.textContent = 'Vista tabla';
+        openComponentBuilderBtn.style.display = 'none';
+      }
+    });
+
+    // Import architecture file
+    importArchBtn.addEventListener('click', () => {
+      importArchFile.click();
+    });
+
+    importArchFile.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const content = event.target.result;
+        architectureTextarea.value = content;
+        
+        // Reload components and re-render
+        architectureComponents = parseArchitectureToComponents();
+        if (tableViewActive) {
+          renderArchitectureTable();
+          syncTextareaFromTable();
+        }
+        
+        saveArchitectureTable();
+        showToast('Archivo importado correctamente', 'success');
+      };
+      reader.readAsText(file);
+      
+      // Reset input so same file can be imported again
+      e.target.value = '';
+    });
+
+    // Toggle candidates text/table view
+    toggleCandidatesViewBtn.addEventListener('click', () => {
+      candidatesTableViewActive = !candidatesTableViewActive;
+      if (candidatesTableViewActive) {
+        candidatesComponents = parseCandidatesToComponents();
+        candidatesTextarea.style.display = 'none';
+        candidatesTableView.style.display = 'block';
+        toggleCandidatesViewBtn.textContent = 'Vista texto';
+        openCandidateBuilderBtn.style.display = 'inline-block';
+        renderCandidatesTable();
+      } else {
+        candidatesTextarea.style.display = 'block';
+        candidatesTableView.style.display = 'none';
+        toggleCandidatesViewBtn.textContent = 'Vista tabla';
+        openCandidateBuilderBtn.style.display = 'none';
+      }
+    });
+
+    // Import candidates file
+    importCandidatesBtn.addEventListener('click', () => {
+      importCandidatesFile.click();
+    });
+
+    importCandidatesFile.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const content = event.target.result;
+        candidatesTextarea.value = content;
+
+        candidatesComponents = parseCandidatesToComponents();
+        if (candidatesTableViewActive) {
+          renderCandidatesTable();
+          syncCandidatesTextareaFromTable();
+        }
+
+        saveCandidatesTable();
+        showToast('Candidatos importados correctamente', true);
+      };
+      reader.readAsText(file);
+
+      e.target.value = '';
+    });
+
+    runButton.addEventListener('click', async () => {
+      const candidates = document.getElementById('candidates').value;
+      const architecture = document.getElementById('architecture').value;
+
+      // Save inputs before running
+      saveInputs();
+
+      setStatus('Ejecutando...');
+      runButton.disabled = true;
+
+      try {
+        const response = await fetch('/api/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ candidates, architecture })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.ok) {
+          const errorMsg = data.error || 'Error en la ejecución';
+          const debugInfo = data.stdout || data.stderr ? `\nSalida: ${data.stdout}\nErrores: ${data.stderr}` : '';
+          throw new Error(errorMsg + debugInfo);
+        }
+
+        const componentCount = resolveComponentCount(data.rows, data.componentCount);
+        showRCColumns = false;
+        toggleRCButton.textContent = 'Mostrar R/C';
+        renderRows(data.rows, componentCount);
+
+        // Save results to localStorage
+        saveResults(data);
+
+        summaryEl.style.whiteSpace = 'normal';
+        summaryEl.textContent = `Total de configuraciones: ${data.totalRows}`;
+        setStatus('Ejecución completada');
+        showScreen(screenResults);
+
+        // Show success toast notification and confetti
+        showToast('Configuraciones procesadas exitosamente', true);
+        createConfetti();
+
+        if (data.totalRows === 0 && data.stdout) {
+          summaryEl.style.whiteSpace = 'pre-wrap';
+          summaryEl.textContent += `\n\nSalida del programa:\n${data.stdout}`;
+        }
+      } catch (error) {
+        summaryEl.style.whiteSpace = 'pre-wrap';
+        summaryEl.textContent = 'No se pudieron generar resultados.\n\n' + error.message;
+        resultBody.innerHTML = '';
+        tableHeader.innerHTML = '';
+        setStatus('Error: ' + error.message.split('\n')[0], true);
+        showScreen(screenResults);
+      } finally {
+        runButton.disabled = false;
+      }
+    });
+
+    // Load saved data on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      loadInputs();
+      loadArchitectureTable();
+      loadCandidatesTable();
+      
+      // No cargar datos por defecto automáticamente
+      // El usuario debe importar o cargar ejemplos manualmente
+      
+      updateClearButtonsVisibility();
+      setBothSectionsTableMode();
+      
+      // Restore last screen
+      const savedScreen = loadFromLocalStorage('traderconfigs_current_screen');
+      if (savedScreen) {
+        const screen = document.getElementById(savedScreen);
+        if (screen) {
+          showScreen(screen);
+        }
+      }
+    });
+
+    // Component builder modal functions
+    function updateSaveButtonState() {
+      // Habilitar solo si hay al menos un servicio ofrecido CON NOMBRE (no vacío)
+      const hasValidOfferedService = services.some(s => s.type === 'O' && s.name.trim().length > 0);
+      saveComponentBtn.disabled = !hasValidOfferedService;
+      saveComponentBtn.style.opacity = hasValidOfferedService ? '1' : '0.5';
+      saveComponentBtn.style.cursor = hasValidOfferedService ? 'pointer' : 'not-allowed';
+    }
+
+    function renderServicesList() {
+      servicesList.innerHTML = '';
+      services.forEach((service, index) => {
+        const serviceDiv = document.createElement('div');
+        serviceDiv.className = 'service-item';
+        serviceDiv.innerHTML = `
+          <div class="service-row">
+            <input type="text" class="service-name" value="${escapeHtml(service.name)}" placeholder="Nombre del servicio" />
+            <div class="service-type">
+              <label class="radio-label">
+                <input type="radio" name="type_${index}" value="O" ${service.type === 'O' ? 'checked' : ''} />
+                <span>Ofrecido</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="type_${index}" value="I" ${service.type === 'I' ? 'checked' : ''} />
+                <span>Requerido</span>
+              </label>
+            </div>
+            <button class="service-remove" data-index="${index}">×</button>
+          </div>
+        `;
+        
+        serviceDiv.querySelector('.service-name').addEventListener('change', (e) => {
+          services[index].name = e.target.value;
+          updateSaveButtonState();
+        });
+        
+        serviceDiv.querySelectorAll('input[type="radio"]').forEach(radio => {
+          radio.addEventListener('change', (e) => {
+            services[index].type = e.target.value;
+            updateSaveButtonState();
+          });
+        });
+        
+        serviceDiv.querySelector('.service-remove').addEventListener('click', () => {
+          services.splice(index, 1);
+          renderServicesList();
+        });
+        
+        servicesList.appendChild(serviceDiv);
+      });
+      
+      updateSaveButtonState();
+    }
+
+    function getAvailableServicesFromComponents(components) {
+      const availableServices = new Set();
+
+      components.forEach((component) => {
+        const offered = (component.offered || '').trim();
+        if (!offered || offered === '-') return;
+
+        offered
+          .split(/[\s,]+/)
+          .map(service => service.trim())
+          .filter(service => service && service !== '-')
+          .forEach(service => availableServices.add(service));
+      });
+
+      return Array.from(availableServices).sort((a, b) => a.localeCompare(b));
+    }
+
+    function updateAvailableServicesSelector() {
+      let sourceComponents = [];
+
+      if (builderTarget === 'architecture') {
+        if (!tableViewActive) {
+          architectureComponents = parseArchitectureToComponents();
+        }
+        sourceComponents = architectureComponents;
+      } else {
+        if (!candidatesTableViewActive) {
+          candidatesComponents = parseCandidatesToComponents();
+        }
+        sourceComponents = candidatesComponents;
+      }
+
+      const available = getAvailableServicesFromComponents(sourceComponents);
+      availableServicesSelect.innerHTML = '<option value="">-- Selecciona un servicio existente --</option>';
+
+      if (available.length === 0) {
+        availableServicesSection.style.display = 'none';
+        return;
+      }
+
+      available.forEach((serviceName) => {
+        const option = document.createElement('option');
+        option.value = serviceName;
+        option.textContent = serviceName;
+        availableServicesSelect.appendChild(option);
+      });
+
+      availableServicesSection.style.display = 'block';
+    }
+
+    function openComponentBuilder(target = 'architecture') {
+      builderTarget = target;
+      services = [];
+      saveComponentBtn.disabled = true;
+      saveComponentBtn.style.opacity = '0.5';
+      saveComponentBtn.style.cursor = 'not-allowed';
+      addServiceBtn.click();
+      updateAvailableServicesSelector();
+      renderServicesList();
+      componentBuilderModal.style.display = 'flex';
+    }
+
+    function closeComponentBuilder() {
+      componentBuilderModal.style.display = 'none';
+      services = [];
+    }
+
+    function saveComponent() {
+      if (services.length === 0) {
+        alert('Por favor, añade al menos un servicio');
+        return;
+      }
+      
+      const offered = services.filter(s => s.type === 'O').map(s => s.name).join(', ');
+      const required = services.filter(s => s.type === 'I').map(s => s.name).join(', ');
+
+      if (builderTarget === 'architecture') {
+        if (tableViewActive) {
+          const newIdx = architectureComponents.length + 1;
+          architectureComponents.push({
+            name: `C${newIdx}`,
+            offered,
+            required
+          });
+          renderArchitectureTable();
+          syncTextareaFromTable();
+          saveArchitectureTable();
+        } else {
+          const architectureText = document.getElementById('architecture');
+          let newComponent = `O: ${offered}`;
+          if (required && required.trim()) {
+            newComponent += ` I: ${required}`;
+          }
+
+          if (architectureText.value.trim()) {
+            architectureText.value += '\n' + newComponent;
+          } else {
+            architectureText.value = newComponent;
+          }
+
+          architectureText.dispatchEvent(new Event('input'));
+        }
+      } else {
+        if (candidatesTableViewActive) {
+          const newIdx = candidatesComponents.length + 1;
+          candidatesComponents.push({
+            name: `C${newIdx}`,
+            offered,
+            required
+          });
+          renderCandidatesTable();
+          syncCandidatesTextareaFromTable();
+          saveCandidatesTable();
+        } else {
+          let newComponent = `O: ${offered}`;
+          if (required && required.trim()) {
+            newComponent += ` I: ${required}`;
+          }
+
+          if (candidatesTextarea.value.trim()) {
+            candidatesTextarea.value += '\n' + newComponent;
+          } else {
+            candidatesTextarea.value = newComponent;
+          }
+
+          candidatesTextarea.dispatchEvent(new Event('input'));
+        }
+      }
+      
+      closeComponentBuilder();
+      showToast('Componente añadido exitosamente');
+    }
+
+    openComponentBuilderBtn.addEventListener('click', () => openComponentBuilder('architecture'));
+    openCandidateBuilderBtn.addEventListener('click', () => openComponentBuilder('candidates'));
+    closeModalBtn.addEventListener('click', closeComponentBuilder);
+    
+    addServiceBtn.addEventListener('click', () => {
+      services.push({ name: '', type: 'O' });
+      renderServicesList();
+      setTimeout(() => {
+        const inputs = servicesList.querySelectorAll('.service-name');
+        if (inputs.length > 0) inputs[inputs.length - 1].focus();
+      }, 0);
+    });
+
+    addExistingServiceBtn.addEventListener('click', () => {
+      const selectedService = availableServicesSelect.value;
+      if (!selectedService) return;
+
+      const alreadyAdded = services.some(
+        service => service.name === selectedService && service.type === 'I'
+      );
+
+      if (alreadyAdded) {
+        showToast('Ese servicio ya está añadido como requerido', false);
+        return;
+      }
+
+      services.push({ name: selectedService, type: 'I' });
+      renderServicesList();
+      showToast('Servicio existente añadido como requerido', true);
+    });
+    
+    saveComponentBtn.addEventListener('click', saveComponent);
+    
+    componentBuilderModal.addEventListener('click', (e) => {
+      if (e.target === componentBuilderModal) closeComponentBuilder();
+    });
+  </script>
+</body>
+</html>

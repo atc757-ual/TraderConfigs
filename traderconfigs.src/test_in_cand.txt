@@ -1,0 +1,7 @@
+O: Factibilidad, CoberturaFibra I: ResolucionDirecciones
+O: ResolucionDirecciones I: CatalogoRed, DatosCobertura, ReporteExtra
+O: CalculadorDistancia I: CatalogoRed
+O: CatalogoRed I: DatosCobertura
+O: DatosCobertura 
+O: CoberturaFibra I: CalculadorDistancia, CatalogoRed
+O: Factibilidad I: ResolucionDirecciones

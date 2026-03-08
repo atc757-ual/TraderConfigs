@@ -1,0 +1,81 @@
+/***************************************************************************
+
+    copyright            : (C) by Luis Iribarne
+    email                : liribarn@ual.es
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
+
+Archivo ejecutable: traderconfigs <file_components.txt> <file_architecture.txt>
+
+Los dos archivos de entrada de tipo texto son obligatorios.
+
+El archivo con los componentes (file_components) tiene el siguiente formato:
+
+O: list I: list
+
+Cada registro del archivo file_components representa un componente, donde los
+elementos list de O: son los servicios que oferta el componente, y los elementos
+list de I: son los que requiere.
+
+Ejemplo: cb.txt
+-------------------------
+O: CIO
+O: CAL
+O: AG CIO I: CAL
+O: LIS
+O: MS AG I: CIO
+O: CAL LIS I: P
+-------------------------
+
+Contiene 6 componentes. El componente 1 oferta un servicio que se llama CIO. El
+2 componente oferta un solo servicio llamado CAL. El 3 componente oferta dos
+servicios llamados AG y CIO, y ademas requiere el servicio CAL. El 4 componente
+oferta un servicio llamado LIS. El 5 componente oferta dos servicios llamados
+MS y AG, y ademas requiere CIO. Por ultimo, el componente 6 oferta otros dos
+servicios llamados CAL y LIS, y ademas requiere P.
+
+Para el nombre de los servicios (CAL, LIS, MS, etc) se admite hasta 1024 caracteres
+de longitud. Por ejemplo, el nombre de un servicio puede ser: Calendario, en lugar de CIO.
+Incluso, el nombre puede ser: "Calendario del escritorio primero", en lugar de CIO.
+
+El formato que tiene el segundo archivo de entrada (file_architecture) es similar
+al anterior. Tan solo puede tener un unico registro considerado como un componente
+que especifica las caracteristicas de la arquitectura deseada.
+
+Ejemplo: architecture.txt
+-------------------------
+O: CAL CIO LIS MS AG
+-------------------------
+
+El ejemplo anterior es un componente que define la especificacion de la arquitectura
+deseada. En este caso, se requiere 5 servicios. No es necesario indicar servicios
+requeridos (expresado con I:).
+
+
+Tras la ejecucion, el programa genera dos archivos (en formato texto):
+
+1. single_configurations.out
+
+   Es este archivo se listan todas las configuraciones validas que cumplen la
+   especificacion dada por la arquitectura (file_architecture.txt)
+
+2. long_configurations.out
+
+   Es este archivo se listan todas las configuraciones validas y no validas que cumplen
+   la especificacion dada por la arquitectura (file_architecture.txt)
+
+
+
+-----------------------------------
+  (c) Luis Iribarne
+-----------------------------------
+
